@@ -5,6 +5,7 @@ import { env } from '../config/env';
 export const redisConnection = env.REDIS_URL
   ? new Redis(env.REDIS_URL, {
       maxRetriesPerRequest: null,
+      enableOfflineQueue: true,
       tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
     })
   : new Redis({
@@ -12,7 +13,13 @@ export const redisConnection = env.REDIS_URL
       port: env.REDIS_PORT,
       password: env.REDIS_PASSWORD || undefined,
       maxRetriesPerRequest: null,
+      enableOfflineQueue: true,
     });
+
+// Handle connection warnings without crashing Node process
+redisConnection.on('error', (err) => {
+  console.warn('⚠️ Redis Connection Event:', err.message);
+});
 
 // Create the email scheduling queue
 export const emailQueue = new Queue('email-queue', {
