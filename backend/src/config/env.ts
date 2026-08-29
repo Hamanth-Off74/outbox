@@ -10,7 +10,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_URL: z.string().optional(),
+  REDIS_URL: z.string().optional().transform((val) => val?.trim().replace(/^["']|["']$/g, '')),
   REDIS_PASSWORD: z.string().optional(),
   ELASTICSEARCH_NODE: z.string().default('http://localhost:9200'),
   WORKER_CONCURRENCY: z.coerce.number().default(5),

@@ -35,4 +35,5 @@ export const emailQueue = new Queue('email-queue', {
   },
 });
 
+console.log(`📡 Redis connecting target: ${env.REDIS_URL ? 'Cloud REDIS_URL' : `${env.REDIS_HOST}:${env.REDIS_PORT}`}`);
 console.log('📦 BullMQ Queue "email-queue" initialized.');
