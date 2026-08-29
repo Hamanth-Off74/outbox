@@ -2,11 +2,17 @@ import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { env } from '../config/env';
 
-export const redisConnection = new Redis({
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
-  maxRetriesPerRequest: null, // mandatory configuration for BullMQ
-});
+export const redisConnection = env.REDIS_URL
+  ? new Redis(env.REDIS_URL, {
+      maxRetriesPerRequest: null,
+      tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
+    })
+  : new Redis({
+      host: env.REDIS_HOST,
+      port: env.REDIS_PORT,
+      password: env.REDIS_PASSWORD || undefined,
+      maxRetriesPerRequest: null,
+    });
 
 // Create the email scheduling queue
 export const emailQueue = new Queue('email-queue', {
