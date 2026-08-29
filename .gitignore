@@ -16,6 +16,9 @@ build/
 out/
 *.log
 
+# Redis dump
+dump.rdb
+
 # System & IDE files
 .DS_Store
 Thumbs.db
