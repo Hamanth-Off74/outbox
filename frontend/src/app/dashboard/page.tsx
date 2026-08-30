@@ -26,6 +26,8 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
+
   // Redirect if not logged in
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -58,7 +60,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const emailAddress = session?.user?.email;
     if (emailAddress) {
-      fetch(`http://localhost:5000/api/senders/email/${emailAddress}`)
+      fetch(`${BACKEND_URL}/api/senders/email/${emailAddress}`)
         .then((res) => res.json())
         .then((data) => {
           if (data && data.id) {
@@ -67,23 +69,36 @@ export default function DashboardPage() {
         })
         .catch((err) => console.error('Failed to sync sender:', err));
     }
-  }, [session]);
+  }, [session, BACKEND_URL]);
 
   // Load emails function
   const fetchEmails = async (search = '') => {
     setIsLoading(true);
     setErrorText(null);
     try {
-      let url = 'http://localhost:5000/api/emails';
+      let url = `${BACKEND_URL}/api/emails`;
       if (search.trim()) {
-        url = `http://localhost:5000/api/emails/search?q=${encodeURIComponent(search)}`;
+        url = `${BACKEND_URL}/api/emails/search?q=${encodeURIComponent(search)}`;
       }
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch emails.');
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to fetch emails (${res.status}): ${text}`);
+      }
       const data = await res.json();
-      setEmails(data);
+      if (Array.isArray(data)) {
+        setEmails(data);
+      } else {
+        setEmails([]);
+      }
     } catch (err: any) {
-      setErrorText(err.message || 'An error occurred while loading emails.');
+      let errorMsg = 'An error occurred while loading emails.';
+      if (err) {
+        if (typeof err === 'string') errorMsg = err;
+        else if (err.message && typeof err.message === 'string') errorMsg = err.message;
+        else errorMsg = JSON.stringify(err);
+      }
+      setErrorText(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -167,7 +182,7 @@ export default function DashboardPage() {
         hourlyLimit: parseInt(hourlyLimit, 10),
       };
 
-      const res = await fetch('http://localhost:5000/api/emails/schedule', {
+      const res = await fetch(`${BACKEND_URL}/api/emails/schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -194,7 +209,7 @@ export default function DashboardPage() {
   // Connect Slack Action
   const handleConnectSlack = () => {
     if (!senderId) return;
-    window.location.href = `http://localhost:5000/api/auth/slack/connect?tenantId=${senderId}`;
+    window.location.href = `${BACKEND_URL}/api/auth/slack/connect?tenantId=${senderId}`;
   };
 
   // Filtered lists for tabs
