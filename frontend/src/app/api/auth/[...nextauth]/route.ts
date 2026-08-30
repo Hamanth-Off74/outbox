@@ -1,6 +1,3 @@
-// Bypass local certificate interception for Google API HTTPS requests
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
