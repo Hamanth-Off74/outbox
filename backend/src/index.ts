@@ -12,7 +12,7 @@ import slackRouter from './routes/slackRoutes';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { emailQueue } from './queues/emailQueue';
+import { emailQueue, redisConnection } from './queues/emailQueue';
 
 // Import worker to start listening on boot
 import './workers/emailWorker';
@@ -23,11 +23,7 @@ app.use(express.json());
 
 // Initialize clients
 const prisma = new PrismaClient();
-const redis = new Redis({
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
-  maxRetriesPerRequest: null, // needed for BullMQ
-});
+const redis = redisConnection;
 const esClient = new ElasticClient({
   node: env.ELASTICSEARCH_NODE,
 });
@@ -124,7 +120,11 @@ const startServer = async () => {
   }
 
   // Initialize Elasticsearch Index
-  await initElasticsearch();
+  try {
+    await initElasticsearch();
+  } catch (err: any) {
+    console.warn('⚠️ Elasticsearch index init skipped:', err.message);
+  }
 
   app.listen(env.PORT, () => {
     console.log(`🚀 Backend server running on port ${env.PORT}`);
