@@ -6,7 +6,7 @@ export const redisConnection = env.REDIS_URL
   ? new Redis(env.REDIS_URL, {
       maxRetriesPerRequest: null,
       enableOfflineQueue: true,
-      tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
+      tls: env.REDIS_URL.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined,
     })
   : new Redis({
       host: env.REDIS_HOST,
