@@ -27,8 +27,13 @@ const handler = NextAuth({
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      if (url.startsWith('/')) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      try {
+        if (url.startsWith('/')) return `${baseUrl}${url}`;
+        const parsedUrl = new URL(url);
+        if (parsedUrl.origin === baseUrl) return url;
+      } catch (err) {
+        // Safe fallback if URL parsing fails
+      }
       return `${baseUrl}/dashboard`;
     },
     async session({ session }) {
