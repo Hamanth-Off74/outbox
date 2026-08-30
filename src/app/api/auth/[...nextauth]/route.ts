@@ -24,12 +24,20 @@ const handler = NextAuth({
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
+      // Never redirect browser to API route endpoints
+      if (url.includes('/api/auth')) {
+        return `${baseUrl}/dashboard`;
+      }
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
       try {
-        if (url.startsWith('/')) return `${baseUrl}${url}`;
         const parsedUrl = new URL(url);
-        if (parsedUrl.origin === baseUrl) return url;
+        if (parsedUrl.origin === baseUrl && !url.includes('/api/auth')) {
+          return url;
+        }
       } catch (err) {
-        // Safe fallback if URL parsing fails
+        // Safe fallback
       }
       return `${baseUrl}/dashboard`;
     },
