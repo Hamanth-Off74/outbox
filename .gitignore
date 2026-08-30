@@ -1,30 +1,41 @@
-# Dependencies
-node_modules/
-.pnpm-store/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Build & Cache Outputs
-dist/
-build/
-.next/
-out/
-*.log
+# testing
+/coverage
 
-# Redis dump
-dump.rdb
+# next.js
+/.next/
+/out/
 
-# System & IDE files
+# production
+/build
+
+# misc
 .DS_Store
-Thumbs.db
-.vscode/
-.idea/
+*.pem
 
-# Prisma generated outputs
-*.dll.node
-*.tmp*
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
